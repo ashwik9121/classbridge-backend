@@ -1,15 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const multer = require('multer');
 
-const upload = multer();
 const app = express();
-
-// Allow requests from all origins (simplest way to fix CORS)
-app.use(cors());
+app.use(cors()); // allow all origins
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 4000;
 
@@ -23,25 +18,15 @@ app.post('/api/translate', async (req, res) => {
 
   try {
     const response = await axios.post(
-      'https://libretranslate.com/translate',
-      {
-        q: text,
-        source: 'auto',
-        target: to || 'en',
-        format: 'text'
-      },
-      {
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      }
+      'https://libretranslate.de/translate', // reliable endpoint
+      { q: text, source: 'auto', target: to || 'en', format: 'text' },
+      { headers: { 'Content-Type': 'application/json' } }
     );
     res.json({ translatedText: response.data.translatedText });
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
     res.json({ translatedText: text + ' (translation failed)' });
   }
 });
 
-app.listen(PORT, () => console.log(`Backend running on Render at port ${PORT}`));
+app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
